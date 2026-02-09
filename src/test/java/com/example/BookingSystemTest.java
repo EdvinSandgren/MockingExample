@@ -15,16 +15,18 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BookingSystemTest {
-    BookingSystem testSystem;
-    LocalDateTime testStart = LocalDateTime.of(1999, 1, 2, 0, 0);
-    LocalDateTime testEnd = LocalDateTime.of(1999, 1, 2, 23, 59);
-    List<Room> testRoomList = new ArrayList<>();
-    List<Booking> bookingList = new ArrayList<>();
-
+    private BookingSystem testSystem;
+    private final LocalDateTime testStart = LocalDateTime.of(1999, 1, 3, 0, 0);
+    private final LocalDateTime testEnd = LocalDateTime.of(1999, 1, 4, 23, 59);
+    private final List<Room> testRoomList = new ArrayList<>();
+    private final List<Booking> bookingList = new ArrayList<>();
+    private TimeProvider testTime;
+    private RoomRepository testRoomRepository;
+    private NotificationService testNotification;
 
     @BeforeEach
     void setUp() {
-        TimeProvider testTime = () -> LocalDateTime.of(1999, 1, 1, 0, 0);
+        testTime = () -> LocalDateTime.of(1999, 1, 2, 0, 0);
 
         Room testRoom1 = new Room("1", "test1");
         Room testRoom2 = new Room("2", "test2");
@@ -34,7 +36,7 @@ class BookingSystemTest {
         testRoomList.add(testRoom2);
         testRoomList.add(testRoom3);
 
-        RoomRepository testRoomRepository = new RoomRepository() {
+        testRoomRepository = new RoomRepository() {
             @Override
             public Optional<Room> findById(String id) {
                 return Optional.ofNullable(testRoomList.stream().filter(room -> room.getId().equals(id)).findFirst().orElse(null));
@@ -52,7 +54,7 @@ class BookingSystemTest {
             }
         };
 
-        NotificationService testNotification = new NotificationService() {
+        testNotification = new NotificationService() {
             @Override
             public void sendBookingConfirmation(Booking booking) throws NotificationException {
                 bookingList.add(booking);
@@ -78,8 +80,43 @@ class BookingSystemTest {
     }
 
     @Test
+    void bookRoomNullTest() {
+        String testID = null;
+        Assertions.assertThatThrownBy(() -> testSystem.bookRoom(testID, testStart, testEnd)).hasMessage("Bokning kräver giltiga start- och sluttider samt rum-id");
+    }
+
+    @Test
+    void bookRoomStartBeforeNowTest() {
+        String testID = "1";
+        Assertions.assertThatThrownBy(() -> testSystem.bookRoom(testID, LocalDateTime.of(1999, 1, 1, 0, 0), testEnd)).hasMessage("Kan inte boka tid i dåtid");
+    }
+
+    @Test
+    void bookRoomEndBeforeStartTest() {
+        String testID = "1";
+        Assertions.assertThatThrownBy(() -> testSystem.bookRoom(testID, testEnd, testStart)).hasMessage("Sluttid måste vara efter starttid");
+    }
+
+    @Test
+    void bookRoomAlreadyBookedTest() {
+        String testID = "1";
+        testSystem.bookRoom(testID, testStart, testEnd);
+        Assertions.assertThat(testSystem.bookRoom(testID, testStart, testEnd)).isFalse();
+    }
+
+    @Test
     void getAvailableRoomsTest() {
         Assertions.assertThat(testSystem.getAvailableRooms(testStart, testEnd).equals(testRoomList)).isTrue();
+    }
+
+    @Test
+    void getAvailableRoomsNoTimeTest() {
+        Assertions.assertThatThrownBy(() -> testSystem.getAvailableRooms(null, null)).hasMessage("Måste ange både start- och sluttid");
+    }
+
+    @Test
+    void getAvailableRoomsEndBeforeStartTest() {
+        Assertions.assertThatThrownBy(() -> testSystem.getAvailableRooms(testEnd, testStart)).hasMessage("Sluttid måste vara efter starttid");
     }
 
     @Test
@@ -87,5 +124,24 @@ class BookingSystemTest {
         String testID = "1";
         testSystem.bookRoom(testID, testStart, testEnd);
         Assertions.assertThat(testSystem.cancelBooking(bookingList.getFirst().getId())).isTrue();
+    }
+
+    @Test
+    void cancelBookingNullIdTest() {
+        Assertions.assertThatThrownBy(() -> testSystem.cancelBooking(null)).hasMessage("Boknings-id kan inte vara null");
+    }
+
+    @Test
+    void cancelBookingEmptyRoomTest() {
+        Assertions.assertThat(testSystem.cancelBooking("")).isFalse();
+    }
+
+    @Test
+    void cancelBookingLateTest() {
+        String testID = "1";
+        testSystem.bookRoom(testID, testStart, testEnd);
+        testTime = () -> testEnd;
+        testSystem = new BookingSystem(testTime, testRoomRepository, testNotification);
+        Assertions.assertThatThrownBy(() -> testSystem.cancelBooking(bookingList.getFirst().getId())).hasMessage("Kan inte avboka påbörjad eller avslutad bokning");
     }
 }
