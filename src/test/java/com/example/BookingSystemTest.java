@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.awt.print.Book;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +19,7 @@ class BookingSystemTest {
     LocalDateTime testStart = LocalDateTime.of(1999, 1, 2, 0, 0);
     LocalDateTime testEnd = LocalDateTime.of(1999, 1, 2, 23, 59);
     List<Room> testRoomList = new ArrayList<>();
+    List<Booking> bookingList = new ArrayList<>();
 
 
     @BeforeEach
@@ -45,19 +47,20 @@ class BookingSystemTest {
 
             @Override
             public void save(Room room) {
-
+                var replace = testRoomList.stream().filter(r ->  r.getId().equals(room.getId())).findFirst().orElse(null);
+                testRoomList.set(testRoomList.indexOf(replace), room);
             }
         };
 
         NotificationService testNotification = new NotificationService() {
             @Override
             public void sendBookingConfirmation(Booking booking) throws NotificationException {
-
+                bookingList.add(booking);
             }
 
             @Override
             public void sendCancellationConfirmation(Booking booking) throws NotificationException {
-
+                bookingList.remove(booking);
             }
         };
        testSystem = new BookingSystem(testTime, testRoomRepository, testNotification);
@@ -71,15 +74,18 @@ class BookingSystemTest {
     void bookRoomTest() {
         String testID = "1";
 
-        Assertions.assertThat(testSystem.bookRoom(testID, testStart, testEnd));
+        Assertions.assertThat(testSystem.bookRoom(testID, testStart, testEnd)).isTrue();
     }
 
     @Test
     void getAvailableRoomsTest() {
-        Assertions.assertThat(testSystem.getAvailableRooms(testStart, testEnd).equals(testRoomList));
+        Assertions.assertThat(testSystem.getAvailableRooms(testStart, testEnd).equals(testRoomList)).isTrue();
     }
 
     @Test
     void cancelBookingTest() {
+        String testID = "1";
+        testSystem.bookRoom(testID, testStart, testEnd);
+        Assertions.assertThat(testSystem.cancelBooking(bookingList.getFirst().getId())).isTrue();
     }
 }
