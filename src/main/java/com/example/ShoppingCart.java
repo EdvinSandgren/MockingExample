@@ -17,4 +17,9 @@ public class ShoppingCart {
     public List<Item> getCart() {
         return cart;
     }
+
+    public boolean removeItem(Item testItem) {
+        cart.remove(testItem);
+        return true;
+    }
 }
