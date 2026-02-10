@@ -23,4 +23,10 @@ public class ShoppingCartTest {
         Assertions.assertThatThrownBy(() -> testCart.addItem(null)).hasMessage("Requires non-null item");
     }
 
+    @Test
+    public void getCartTest() {
+        testCart.addItem(testItem);
+        Assertions.assertThat(testCart.getCart().contains(testItem)).isTrue();
+    }
+
 }
