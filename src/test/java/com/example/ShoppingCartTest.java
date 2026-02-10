@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 
 public class ShoppingCartTest {
     private ShoppingCart testCart;
@@ -67,6 +68,14 @@ public class ShoppingCartTest {
         testCart.addItem(testItem);
         testCart.addItem(testItem);
         Assertions.assertThat(testCart.calculatePrice().equals(BigDecimal.TWO)).isTrue();
+    }
+
+    @Test
+    public void calculatePriceDiscountTest() throws ParseException {
+        testCart.addItem(testItem);
+        testCart.addItem(testItem);
+        String discount = "50%";
+        Assertions.assertThat(testCart.calculatePrice(discount).equals(BigDecimal.TWO.multiply(BigDecimal.valueOf(0.5)))).isTrue();
     }
 
 }

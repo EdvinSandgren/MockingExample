@@ -1,6 +1,8 @@
 package com.example;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,5 +33,13 @@ public class ShoppingCart {
         return cart.stream()
                 .map(Item::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal calculatePrice(String discount) throws ParseException {
+        double discountDouble = new DecimalFormat("0.0").parse(discount).doubleValue() / 100;
+
+        return cart.stream()
+                .map(Item::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add).multiply(new BigDecimal(discountDouble));
     }
 }
