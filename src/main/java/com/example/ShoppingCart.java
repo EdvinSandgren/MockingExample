@@ -28,6 +28,8 @@ public class ShoppingCart {
     }
 
     public BigDecimal calculatePrice() {
-        return BigDecimal.ONE;
+        return cart.stream()
+                .map(Item::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

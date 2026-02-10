@@ -9,7 +9,12 @@ import java.math.BigDecimal;
 public class ShoppingCartTest {
     private ShoppingCart testCart;
     private final Item testItem = new Item() {
-        final BigDecimal price = new BigDecimal("1.00");
+        final BigDecimal price = BigDecimal.ONE;
+
+        @Override
+        public BigDecimal getPrice() {
+            return price;
+        }
     };
 
     @BeforeEach
@@ -55,6 +60,13 @@ public class ShoppingCartTest {
     public void calculatePriceTest() {
         testCart.addItem(testItem);
         Assertions.assertThat(testCart.calculatePrice().equals(BigDecimal.ONE)).isTrue();
+    }
+
+    @Test
+    public void calculatePriceMultipleItemsTest() {
+        testCart.addItem(testItem);
+        testCart.addItem(testItem);
+        Assertions.assertThat(testCart.calculatePrice().equals(BigDecimal.TWO)).isTrue();
     }
 
 }
