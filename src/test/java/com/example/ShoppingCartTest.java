@@ -4,9 +4,13 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 public class ShoppingCartTest {
-    ShoppingCart testCart;
-    Item testItem = new Item() {};
+    private ShoppingCart testCart;
+    private final Item testItem = new Item() {
+        final BigDecimal price = new BigDecimal("1.00");
+    };
 
     @BeforeEach
     void beforeEach() {
@@ -45,6 +49,12 @@ public class ShoppingCartTest {
     @Test
     public void removeItemNoItemTest() {
         Assertions.assertThat(testCart.removeItem(testItem)).isFalse();
+    }
+
+    @Test
+    public void calculatePriceTest() {
+        testCart.addItem(testItem);
+        Assertions.assertThat(testCart.calculatePrice().equals(BigDecimal.ONE)).isTrue();
     }
 
 }

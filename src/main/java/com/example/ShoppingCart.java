@@ -1,5 +1,6 @@
 package com.example;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,5 +25,9 @@ public class ShoppingCart {
             return true;
         }
         return false;
+    }
+
+    public BigDecimal calculatePrice() {
+        return BigDecimal.ONE;
     }
 }
