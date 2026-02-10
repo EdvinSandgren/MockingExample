@@ -68,35 +68,35 @@ class BookingSystemTest {
        testSystem = new BookingSystem(testTime, testRoomRepository, testNotification);
     }
 
-    @AfterEach
-    void tearDown() {
-    }
-
+    /// Tests the bookRoom method when booking an existing, available room
     @Test
     void bookRoomTest() {
         String testID = "1";
-
         Assertions.assertThat(testSystem.bookRoom(testID, testStart, testEnd)).isTrue();
     }
 
+    /// Tests the bookRoom method when roomId is null
     @Test
     void bookRoomNullTest() {
         String testID = null;
         Assertions.assertThatThrownBy(() -> testSystem.bookRoom(testID, testStart, testEnd)).hasMessage("Bokning kräver giltiga start- och sluttider samt rum-id");
     }
 
+    /// Tests the bookRoom method when the start time is before the current test date
     @Test
     void bookRoomStartBeforeNowTest() {
         String testID = "1";
         Assertions.assertThatThrownBy(() -> testSystem.bookRoom(testID, LocalDateTime.of(1999, 1, 1, 0, 0), testEnd)).hasMessage("Kan inte boka tid i dåtid");
     }
 
+    /// Tests the bookRoom method when the end time is before the start time
     @Test
     void bookRoomEndBeforeStartTest() {
         String testID = "1";
         Assertions.assertThatThrownBy(() -> testSystem.bookRoom(testID, testEnd, testStart)).hasMessage("Sluttid måste vara efter starttid");
     }
 
+    /// Tests the bookRoom method when a room is already booked
     @Test
     void bookRoomAlreadyBookedTest() {
         String testID = "1";
@@ -104,21 +104,25 @@ class BookingSystemTest {
         Assertions.assertThat(testSystem.bookRoom(testID, testStart, testEnd)).isFalse();
     }
 
+    /// Tests the getAvailableRooms method for a period of time
     @Test
     void getAvailableRoomsTest() {
         Assertions.assertThat(testSystem.getAvailableRooms(testStart, testEnd).equals(testRoomList)).isTrue();
     }
 
+    /// Tests the getAvailableRooms method when the time is null
     @Test
     void getAvailableRoomsNoTimeTest() {
         Assertions.assertThatThrownBy(() -> testSystem.getAvailableRooms(null, null)).hasMessage("Måste ange både start- och sluttid");
     }
 
+    /// Tests the getAvailableRooms method when the end time is before the start time
     @Test
     void getAvailableRoomsEndBeforeStartTest() {
         Assertions.assertThatThrownBy(() -> testSystem.getAvailableRooms(testEnd, testStart)).hasMessage("Sluttid måste vara efter starttid");
     }
 
+    /// Tests the cancelBooking method when trying to cancel an existing booking
     @Test
     void cancelBookingTest() {
         String testID = "1";
@@ -126,16 +130,19 @@ class BookingSystemTest {
         Assertions.assertThat(testSystem.cancelBooking(bookingList.getFirst().getId())).isTrue();
     }
 
+    /// Tests the cancelBooking method when trying to cancel with a null bookingId
     @Test
     void cancelBookingNullIdTest() {
         Assertions.assertThatThrownBy(() -> testSystem.cancelBooking(null)).hasMessage("Boknings-id kan inte vara null");
     }
 
+    /// Tests the cancelBooking method when trying to cancel a booking that doesn't exist
     @Test
-    void cancelBookingEmptyRoomTest() {
+    void cancelBookingEmptyBookingTest() {
         Assertions.assertThat(testSystem.cancelBooking("")).isFalse();
     }
 
+    /// Tests the cancelBooking method when trying to cancel an already started booking
     @Test
     void cancelBookingLateTest() {
         String testID = "1";
