@@ -1,18 +1,13 @@
 package com.example;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.awt.print.Book;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class BookingSystemTest {
     private BookingSystem testSystem;
@@ -39,7 +34,7 @@ class BookingSystemTest {
         testRoomRepository = new RoomRepository() {
             @Override
             public Optional<Room> findById(String id) {
-                return Optional.ofNullable(testRoomList.stream().filter(room -> room.getId().equals(id)).findFirst().orElse(null));
+                return testRoomList.stream().filter(room -> room.getId().equals(id)).findFirst();
             }
 
             @Override
@@ -78,8 +73,7 @@ class BookingSystemTest {
     /// Tests the bookRoom method when roomId is null
     @Test
     void bookRoomNullTest() {
-        String testID = null;
-        Assertions.assertThatThrownBy(() -> testSystem.bookRoom(testID, testStart, testEnd)).hasMessage("Bokning kräver giltiga start- och sluttider samt rum-id");
+        Assertions.assertThatThrownBy(() -> testSystem.bookRoom(null, testStart, testEnd)).hasMessage("Bokning kräver giltiga start- och sluttider samt rum-id");
     }
 
     /// Tests the bookRoom method when the start time is before the current test date
