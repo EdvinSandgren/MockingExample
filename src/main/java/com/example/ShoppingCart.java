@@ -19,7 +19,10 @@ public class ShoppingCart {
     }
 
     public boolean removeItem(Item testItem) {
-        cart.remove(testItem);
-        return true;
+        if(cart.contains(testItem)){
+            cart.remove(testItem);
+            return true;
+        }
+        return false;
     }
 }

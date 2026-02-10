@@ -41,4 +41,10 @@ public class ShoppingCartTest {
         testCart.removeItem(testItem);
         Assertions.assertThat(testCart.getCart().contains(testItem)).isFalse();
     }
+
+    @Test
+    public void removeItemNoItemTest() {
+        Assertions.assertThat(testCart.removeItem(testItem)).isFalse();
+    }
+
 }
