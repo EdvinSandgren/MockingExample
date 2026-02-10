@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 public class ShoppingCartTest {
     ShoppingCart testCart;
+    Item testItem = new Item() {};
 
     @BeforeEach
     void beforeEach() {
@@ -14,8 +15,12 @@ public class ShoppingCartTest {
 
     @Test
     public void addItemTest() {
-        Item testItem = new Item() {};
         Assertions.assertThat(testCart.addItem(testItem)).isTrue();
+    }
+
+    @Test
+    public void addItemNullTest() {
+        Assertions.assertThatThrownBy(() -> testCart.addItem(null)).hasMessage("Requires non-null item");
     }
 
 }
