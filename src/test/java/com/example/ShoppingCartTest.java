@@ -35,4 +35,10 @@ public class ShoppingCartTest {
         Assertions.assertThat(testCart.removeItem(testItem)).isTrue();
     }
 
+    @Test
+    public void removeItemVerifyTest() {
+        testCart.addItem(testItem);
+        testCart.removeItem(testItem);
+        Assertions.assertThat(testCart.getCart().contains(testItem)).isFalse();
+    }
 }
